@@ -14,14 +14,43 @@ import {
   MaterialIcons
 } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import axios from 'axios'
 
 const Login = () => {
   const router = useRouter()
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
 
-  const handleLogin = () => {
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token")
+        if(token) {
+          router.replace("/(tabs)/home")
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    checkLoginStatus()
+  },[])
 
+  const handleLogin = async () => {
+    try {
+      const user = {
+        email,
+        password
+      }
+      axios.post("http://192.168.68.109:8000/login", user)
+        .then((res) => {
+          const token = res.data.token
+          AsyncStorage.setItem("token", token)
+          router.replace("/(tabs)/home")
+        })
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
