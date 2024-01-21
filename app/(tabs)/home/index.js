@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from 'react'
-import { 
-  StyleSheet, 
-  Text, 
+import React, { useState, useEffect } from 'react'
+import {
+  StyleSheet,
+  Text,
   View,
   ScrollView,
   Pressable,
@@ -24,9 +24,9 @@ import axios from 'axios'
 
 const index = () => {
   const router = useRouter()
-  const [posts,setPosts] = useState()
-  const [userId,setUserId] = useState()
-  const [user,setUser] = useState()
+  const [posts, setPosts] = useState()
+  const [userId, setUserId] = useState()
+  const [user, setUser] = useState()
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -37,7 +37,7 @@ const index = () => {
     }
 
     fetchUser()
-  },[])
+  }, [])
 
   useEffect(() => {
     if (userId) {
@@ -48,28 +48,40 @@ const index = () => {
   const fetchUserProfile = async () => {
     try {
       const res = await axios.get(`http:192.168.68.109:8000/profile/${userId}`)
-      const userData = res.data.user;
+      const userData = res.data;
+
       setUser(userData);
     } catch (error) {
       console.log("error fetching user profile", error);
     }
   }
 
-  
   useEffect(() => {
-    const fetchAllPosts = async () => {
-      try {
-        const res = await axios.get("http:192.168.68.109:8000/all")
-        setPosts(res.data.posts);
-      } catch (error) {
-        console.log("error fetching posts", error);
-      }
-    }
     fetchAllPosts()
-  },[])
+  }, [])
 
-  const handleLikePost = () => {
+  const fetchAllPosts = async () => {
+    try {
+      const res = await axios.get("http:192.168.68.109:8000/all")
+      setPosts(res.data.posts);
+    } catch (error) {
+      console.log("error fetching posts", error);
+    }
+  }
 
+  const handleLikePost = async (postId) => {
+    try {
+      const response = await axios.post(
+        `http://192.168.68.109:8000/like/${postId}/${userId}`
+      );
+      if (response.status === 200) {
+        const updatedPost = response.data.post;
+        setIsLiked(updatedPost.likes.some((like) => like.user === userId));
+        // fetchAllPosts()
+      }
+    } catch (error) {
+      console.log("Error liking/unliking the post", error);
+    }
   }
 
   const MAX_LINES = 2;

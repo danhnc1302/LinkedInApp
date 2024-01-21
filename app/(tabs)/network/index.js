@@ -92,8 +92,6 @@ const index = () => {
     await AsyncStorage.removeItem("token")
     router.replace("/(authenticate)/login")
   }
-  console.log("connectionRequests: ",connectionRequests)
-
   
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white" }}>

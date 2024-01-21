@@ -45,8 +45,6 @@ const index = () => {
         quality: 1,
       });
 
-      console.log(result);
-
       if (!result.canceled && result.assets.length > 0) {
         setImage(result.assets[0].uri);
       }
@@ -70,7 +68,6 @@ const index = () => {
         postData
       );
 
-      console.log("post created", response.data);
       if (response.status === 201) {
         router.replace("/(tabs)/home");
       }
@@ -82,8 +79,6 @@ const index = () => {
   const uploadFile = async () => {
     try {
       // Ensure that 'image' contains a valid file URI
-      console.log("Image URI:", image);
-
       const { uri } = await FileSystem.getInfoAsync(image);
 
       if (!uri) {
