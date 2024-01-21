@@ -28,7 +28,7 @@ const ConnectionRequest = ({
 
       if (response.ok) {
         setConnectionRequests(
-          connectionRequests.filter((request) => request._id !== requestId)
+          connectionRequests.filter((request) => request.id !== requestId)
         );
       }
     } catch (error) {
@@ -66,7 +66,7 @@ const ConnectionRequest = ({
           </View>
 
           <Pressable
-            onPress={() => acceptConnection(item._id)}
+            onPress={() => acceptConnection(item.id)}
             style={{
               width: 36,
               height: 36,

@@ -16,7 +16,9 @@ import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import UserProfile from '../../../components/UserProfile'
 import ConnectionRequest from '../../../components/ConnectionRequest'
+import { useRouter } from 'expo-router'
 const index = () => {
+  const router = useRouter()
   const [userId, setUserId] = useState()
   const [user, setUser] = useState()
   const [users, setUsers] = useState()
@@ -71,7 +73,6 @@ const index = () => {
 
   const fetchFriendRequests = async () => {
     try {
-      console.log("danh")
       const res = await axios.get(`http://192.168.68.109:8000/connection-request/${userId}`)
       if (res.status === 200) {
         const connectionRequetsData = res.data?.map((friendRequest) => ({
@@ -89,8 +90,11 @@ const index = () => {
 
   const removeToken = async () => {
     await AsyncStorage.removeItem("token")
+    router.replace("/(authenticate)/login")
   }
   console.log("connectionRequests: ",connectionRequests)
+
+  
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
       <Pressable

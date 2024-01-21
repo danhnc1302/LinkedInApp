@@ -114,7 +114,6 @@ app.get("/verify/:token", async (req, res) => {
 //endpoint to login a user
 app.post("/login", async (req, res) => {
     try {
-        console.log(req.body)
         const { email, password } = req.body
         //check if user exists already
         const user = await User.findOne({ email })
@@ -176,7 +175,6 @@ app.get("/users/:userId", async (req, res) => {
 //send a connect request
 app.post("/connection-request", async (req, res) => {
     try {
-        console.log(req.body)
         const { currentUserId, selectedUserId } = req.body
 
         await User.findByIdAndUpdate(selectedUserId, {
@@ -213,28 +211,75 @@ app.get("/connection-request/:userId", async (req, res) => {
 //endpoint to accept a connection request
 app.post("/connection-request/accept", async (req, res) => {
     try {
-      const { senderId, recepientId } = req.body;
-  
-      const sender = await User.findById(senderId);
-      const recepient = await User.findById(recepientId);
-  
-      sender.connections.push(recepientId);
-      recepient.connections.push(senderId);
-  
-      recepient.connectionRequests = recepient.connectionRequests.filter(
-        (request) => request.toString() !== senderId.toString()
-      );
-  
-      sender.sentConnectionRequests = sender.sentConnectionRequests.filter(
-        (request) => request.toString() !== recepientId.toString()
-      );
-  
-      await sender.save();
-      await recepient.save();
-  
-      res.status(200).json({ message: "Friend request acccepted" });
+        const { senderId, recepientId } = req.body;
+
+        const sender = await User.findById(senderId);
+        const recepient = await User.findById(recepientId);
+
+        sender.connections.push(recepientId);
+        recepient.connections.push(senderId);
+
+        recepient.connectionRequests = recepient.connectionRequests.filter(
+            (request) => request.toString() !== senderId.toString()
+        );
+
+        sender.sentConnectionRequests = sender.sentConnectionRequests.filter(
+            (request) => request.toString() !== recepientId.toString()
+        );
+
+        await sender.save();
+        await recepient.save();
+
+        res.status(200).json({ message: "Friend request acccepted" });
     } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: "Internal Server Error" });
+        console.log(error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
-  });
+});
+
+//endpoint to fetch user's connections
+app.get("/connections/:userId", async (req, res) => {
+    try {
+        const userId = req.params.userId
+        const user = await User.findById(userId).populate("connections", "name profileImage createAt").exec()
+        if (!user) {
+            return res.status(404).json({ message: "User is not found" });
+        }
+        res.status(200).json({ connections: user.connections });
+    } catch (error) {
+        console.log("error fetching the connections", error);
+        res.status(500).json({ message: "Error fetching the connections" })
+    }
+})
+
+
+//endpoint to create a post
+app.post("/create", async (req, res) => {
+    try {
+        console.log(req.body)
+        const { description, imageUrl, userId } = req.body
+        
+        const newPost = new Post({
+            description: description,
+            imageUrl: imageUrl,
+            user: userId
+        })
+
+        await newPost.save()
+        res.status(201).json({ message: "Post created successfully", post: newPost });
+    } catch (error) {
+        console.log("error creating the post", error)
+        res.status(500).json({ message: "Error creating the post" })
+    }
+})
+
+//endpoint to fetch all the posts
+app.get("/all", async (req, res) => {
+    try {
+        const posts = await Post.find().populate("user", "name profileImage")
+        res.status(200).json({ posts })
+    } catch (error) {
+        console.log("error fetching all the posts", error)
+        res.status(500).json({ message: "Error fetching all the posts" })
+    }
+})
